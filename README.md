@@ -1,4 +1,4 @@
-# Financial-Estate-Management-
+# Financial-Estate-Management-app
 
 A comprehensive application for managing clients personal information, insurance policy information and storing past claims information. This application helps financial advisors track their clients' insurance portfolios, policy details, and claims.
 
