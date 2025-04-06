@@ -48,15 +48,15 @@ This section lists the primary capabilities the application must provide to the 
 *   **Reporting & Visualization:**
     *   [ ] **Business Portfolio Visualization:** Provide a dedicated view or dashboard section to visualize the overall business portfolio. This must include:
         *   Data aggregation based on all clients/policies.
-        *   Visual representations (e.g., charts - Pie and Bar charts preferred) of the portfolio breakdown.
+        *   Visual representations (e.g., charts - Pie and Bar charts preferred using a library like Chart.js) of the portfolio breakdown.
         *   Ability to **filter/group** the visualization by `PolicyType` and client `Gender`.
     *   [ ] **Client Portfolio Visualization:** Within the individual client detail view, provide a visualization of that specific client's insurance portfolio. This must include:
-        *   Visual representations (e.g., charts - Pie chart for policy type breakdown, potentially a table for detailed list) showing the client's policy distribution.
+        *   Visual representations (e.g., charts - Pie chart for policy type breakdown, potentially a table for detailed list using Chart.js) showing the client's policy distribution.
         *   Ability to **filter/group/sort** the visualization by `PolicyType` and `CoverageType`.
 
 *   **Data Handling & Persistence:**
     *   [ ] **Persistence:** Reliably save all client, policy, and coverage data to the designated database (SQLite file initially).
-    *   [ ] **Validation:** Implement input validation based on the defined database schema (e.g., ensure required fields are filled, data types match like valid dates/email formats, numeric fields contain numbers). Provide user-friendly error messages for validation failures.
+    *   [ ] **Validation:** Implement input validation based on the defined database schema (e.g., ensure required fields are filled, data types match like valid dates/email formats, numeric fields contain numbers). Provide user-friendly error messages for validation failures, preferably next to the invalid field.
 
 
 ## 3. User Interface (UI) / User Experience (UX) Requirements
@@ -71,68 +71,32 @@ This section lists the primary capabilities the application must provide to the 
         *   Secondary: A contrasting accent color, such as a vibrant yellow, orange, or pink
 
 *   **Layout & Navigation Structure:**
-    *   **Primary Navigation:** Implement a **vertical sidebar** on the left side for main application sections (e.g., 'Dashboard/Overview', 'Clients', 'Reports', 'Settings'). This provides a clear hierarchy and is space-efficient for content areas.
+    *   **Primary Navigation:** Implement a **vertical sidebar** on the left side for main application sections (e.g., 'Dashboard/Overview', 'Clients', 'Reports', 'Settings'). This provides a clear hierarchy and is space-efficient for content areas. Contains clickable links/elements for navigation.
     *   **Header:** Utilize a **sticky/fixed header** at the top of the page. This ensures consistent access to key functions regardless of scroll position.
     *   **Search:** Include a **prominent search bar** within the sticky header for efficient data retrieval as defined in Core Features.
-    *   **Content Area:** The main area to the right of the sidebar and below the header will display the core content (client lists, forms, dashboards).
+    *   **Content Area:** The main area to the right of the sidebar and below the header will display the core content (client lists, forms, dashboards). This area will dynamically change based on the selected view/navigation.
     *   **Breadcrumbs:** Implement breadcrumbs, likely displayed below the header or at the top of the content area, to show the user's current location within the application's hierarchy (e.g., `Home > Clients > [Client Name] > Edit Policy`).
 
 *   **Content Display & Interaction:**
+    *   **Component-Based Approach:** The UI should be built using logical components (e.g., ClientListCard, ClientDetailForm, PolicyCard, CoverageRow) as facilitated by the chosen frontend framework (Vue.js).
     *   **Card-Based Layout:** Use a **card-based layout** within the main content area to segment and display lists of items clearly (e.g., Client list uses summary cards, a Client's Policies view shows policy cards). Consider a grid layout for these cards where appropriate.
-    *   **Forms:** Data entry forms should be well-structured within the content area, using clear labels, logical grouping of fields, and appropriate input controls (text fields, date pickers, dropdowns, etc.). When a form is loaded (e.g., Add Client), automatically set the keyboard focus to the first input field.
-        *   **Personal Information Card Layout:** Within the card displaying the client's main personal details (excluding addresses), arrange the fields specifically in a **two-column grid** layout as follows:
-            *   **Column 1:**
-                1.  Salutation
-                2.  Full Name
-                3.  Personal ID (`Personal_ID`)
-                4.  Date of Birth (`DateOfBirth`)
-                5.  Gender
-                6.  Marital Status
-            *   **Column 2:**
-                1.  Smoking Status
-                2.  Occupation
-                3.  Annual Income
-                4.  Mobile No (`Mobile_Phone`)
-                5.  Personal Email (`Personal_Email`)
-            *   Each field must have a clear, corresponding label positioned appropriately (e.g., above or to the left of the input).
-            *   On smaller screens (tablets/mobile), these two columns **must stack vertically**.
-        *   **Address Cards Layout:** The Residential Address and Mailing Address details should appear in their own distinct sections/cards, typically below the Personal Information card.
-            *   **Layout:** Both the Residential Address card and the Mailing Address card **must** arrange their fields in the following **two-column grid** structure:
-                *   **Column 1:**
-                    1.  Block / House Number (`Res_Block_House_No` / `Mail_Block_House_No`)
-                    2.  Street Name (`Res_Street_Name` / `Mail_Street_Name`)
-                    3.  *(Blank Space / No Field)*
-                *   **Column 2:**
-                    1.  Unit No (`Res_Unit_No` / `Mail_Unit_No`)
-                    2.  Postal Code (`Res_Postal_Code` / `Mail_Postal_Code`)
-                    3.  Country (`Res_Country` / `Mail_Country` - Dropdown)
-            *   Each field must have a clear, corresponding label.
-            *   On smaller screens (tablets/mobile), these two columns **must stack vertically**.
-            *   **Mailing Address Logic:** Remember to implement the "Mailing Address same as Residential" checkbox logic for the Mailing Address card, hiding/showing/disabling/enabling this two-column fieldset as appropriate.
-        *   **Specific Controls:** *(Confirming control types)*
-            *   The `Gender` field **must** be presented using **radio buttons** offering exactly two choices: 'Male' and 'Female'.
-            *   Fields like `Salutation`, `SmokingStatus`, `MaritalStatus` should also use radio buttons.
-            *   Use appropriate dropdowns (`<select>`) for `Res_Country`, `Mail_Country`, `PolicyType`, `InsuranceProvider`, `PremiumFrequency`, `PaymentMode`, `BenefitLevel`, `CoverageType`.
-            *   Use date picker components for date fields (`DateOfBirth`, `InceptionDate`, etc.) that display in `DD/MM/YYYY` format but handle data as `YYYY-MM-DD`.
-            *   Validation error messages should be displayed clearly, preferably next to or below the respective invalid input field.
-    *   **Transitions & Feedback:** Implement **smooth transitions and subtle animations** where appropriate (e.g., loading states, expanding details). Provide clear visual feedback for user actions (button clicks, saves, errors). Display clear loading indicators (e.g., spinners, placeholders) when fetching data or saving data.
-    *   **Policy View Layout:** When viewing/editing a specific policy, the information should be presented in two distinct cards:
-        *   **Card 1: "Policy Details":** Contains the form fields corresponding to the `Policies` table (`PolicyNumber`, `PlanName`, `PolicyType`, `InsuranceProvider`, dates, premium details, etc.). Display the calculated `Annualised_Premium` as a read-only field near the `PremiumAmount` and `PremiumFrequency` fields.
-        *   **Card 2: "Policy Coverages":** Contains the details for the individual coverages/riders associated with the policy.
-            *   This card should be **visually wider** than the Policy Details card, if possible, to accommodate fields horizontally.
-            *   Display coverages in a **table-like structure** or repeating rows. Each row corresponds to one record from the `Coverages` table linked to the current policy.
-            *   Each row should contain input fields for `CoveragePlanName`, `BenefitLevel` (dropdown), `CoverageType` (dropdown), `CoveragePremiumAmount`, `CoverageSumAssured`, dates, `CoverageTillAge`.
-            *   **Dynamic Row Management:**
-                *   Include a clearly visible **"+" (Add Row) button/icon**, likely placed below the last coverage row or in the card's header/footer. Clicking this adds a new, blank row of coverage input fields to the UI.
-                *   Include a clearly visible **"-" (Remove Row) button/icon** next to *each* existing coverage row. Clicking this removes that specific row from the UI and its corresponding data upon saving.
-            *   The layout within each coverage row should attempt to keep fields on a **single line** for space efficiency, wrapping if necessary on smaller screens.
+    *   **Forms:** Data entry forms should be well-structured within components, using clear labels, logical grouping of fields, and appropriate input controls (text fields, date pickers, dropdowns, etc.). When a form is loaded, automatically set the keyboard focus to the first input field.
+        *   **Personal Information Layout:** Within the component displaying the client's main personal details, arrange fields in a **two-column grid** (stacking vertically on mobile) as specified previously (Salutation, Full Name, ID, DOB, Gender, Marital Status in Col1; Smoking, Occupation, Income, Mobile, Email in Col2).
+        *   **Address Layouts:** The Residential and Mailing Address components should each use the specified **two-column grid** layout (Block/House, Street in Col1; Unit, Postal, Country in Col2), stacking vertically on mobile. Implement the "Mailing Address same as Residential" checkbox logic to conditionally display/manage the Mailing Address component/fields.
+        *   **Specific Controls:** Use appropriate HTML controls or framework-specific components for inputs: Radio buttons (Gender, Salutation, etc.), Dropdowns (Country, PolicyType, etc.), Date pickers (display DD/MM/YYYY), Checkbox (MailingSameAsResidential).
+    *   **Transitions & Feedback:** Implement **smooth transitions and subtle animations** where appropriate (e.g., view changes, loading states, expanding details). Provide clear visual feedback for user actions (button clicks, saves, errors). Display clear loading indicators (e.g., spinners, placeholders) when fetching data or saving data.
+    *   **Policy View Layout:** When viewing/editing a specific policy, use two main components/cards:
+        *   **Card 1: "Policy Details Component":** Displays/allows editing of fields from the `Policies` table. Shows calculated `Annualised_Premium`.
+        *   **Card 2: "Policy Coverages Component":** Displays associated coverages in a table-like structure or repeating rows/components.
+            *   Layout within each coverage row/component should attempt a single-line format, wrapping on mobile.
+            *   **Dynamic Row Management:** Include functional "+" and "-" buttons to add/remove coverage rows/components dynamically, updating the underlying data model.
 
 *   **Key Design Principles:**
     *   **Consistency:** Maintain a consistent design language (colors, typography, component styles, interaction patterns) throughout the application.
     *   **Accessibility:** Ensure the UI is accessible. Use clear labels, sufficient color contrast, appropriate spacing, and keyboard navigability where feasible. Follow standard accessibility guidelines (WCAG).
 
 *   **Responsiveness & Cross-Platform:**
-    *   **Mobile Optimization:** The web UI *must* be responsive and adapt gracefully to different screen sizes, including tablets (iPadOS) and potentially smaller mobile viewports. For smaller screens, the vertical sidebar might collapse into a hamburger menu, and horizontal layouts (like coverage rows) may need to stack vertically.
+    *   **Mobile Optimization:** The web UI *must* be responsive and adapt gracefully to different screen sizes, including tablets (iPadOS) and potentially smaller mobile viewports. For smaller screens, the vertical sidebar might collapse into a hamburger menu, and horizontal layouts may need to stack vertically.
 
 ## 4. Data Structure / Database Schema
 
@@ -221,35 +185,44 @@ This section lists the primary capabilities the application must provide to the 
 
 ## 5. Technology Stack (Proposed/Requested)
 
-Given the goal of straightforward implementation and compatibility with Replit's environment, the following technology stack is preferred:
+Given the interactive nature of the UI (multiple views, dynamic forms, state management between client/policy views) and aiming for a balance between modern structure and implementation feasibility with AI assistance:
 
 *   **Frontend (UI):**
-    *   **Chosen:** **HTML, CSS, and Vanilla JavaScript (Option 1)**.
-    *   **Reasoning:** Avoids framework overhead for simpler generation and modification. Focus on clean HTML, standard CSS (Flexbox/Grid for layout/responsiveness), and plain JavaScript for interactivity (forms, validation, dynamic rows, API calls, calculations, UI logic).
+    *   **Chosen:** **Vue.js (using Vue 3 Composition API and `<script setup>`)**
+    *   **Reasoning:** While Vanilla JS was initially considered, the complexity of managing different views, handling dynamic forms, and maintaining application state is significant. A framework like **Vue.js** provides essential structure for component-based UI (cards, forms), reactive state management, and conditional rendering (showing/hiding views) which is **more likely to result in a functional and maintainable application via AI generation** compared to manually coding this logic in Vanilla JS. Vue 3 Composition API with `<script setup>` offers a modern and efficient way to organize component logic.
+    *   **Build Tool:** Use **Vite** for project setup and development server (provides fast HMR - Hot Module Replacement).
+    *   **Routing:** Use **Vue Router** for managing navigation between different application views (Client List, Client Detail, Policy Detail, Dashboard, etc.).
+    *   **UI Components (Optional):** Consider using a simple Vue component library like **PrimeVue** or **Element Plus** for pre-built components (inputs, cards, date pickers), OR rely on custom styling with CSS. *Specify preference if any, otherwise AI can choose or use basic HTML elements.*
+    *   **Charting Library:** Include **Chart.js** and a Vue wrapper (like `vue-chartjs`) for visualizations (Section 2).
 *   **Backend (Logic/Data Handling):**
     *   **Chosen:** **Python with the Flask framework (Option 1)**.
-    *   **Reasoning:** Well-supported on Replit, beginner-friendly, sufficient for API endpoints (CRUD operations), calculations, and database interaction.
+    *   **Reasoning:** Well-supported on Replit, relatively simple, sufficient for creating the necessary RESTful API endpoints.
 *   **Database:**
     *   **Chosen:** **SQLite (Recommendation Accepted)**.
-    *   **Reasoning:** Ideal for local use and NAS migration (single file, serverless). The database file (e.g., `client_data.db`) should reside within the project directory.
+    *   **Reasoning:** Ideal for local use and NAS migration (single file, serverless). The database file (e.g., `client_data.db`) should reside within the backend's project directory.
 
 
 ## 6. Development & Deployment Plan
 
 *   **Phase 1: Initial Development & Local Use (Now - 6 Months):**
-    *   **Environment:** Primary development and testing within Replit. Application runnable directly on local machines (Windows, macOS) for testing/initial use.
+    *   **Environment:** Primary development and testing within Replit. Application runnable directly on local machines (Windows, macOS) for testing/initial use (requires Node.js/npm for frontend build/dev server, Python for backend).
     *   **Goal:** Achieve a stable, functional version covering all core features, suitable for personal use from a local hard drive.
-    *   **Database Location:** SQLite database file (`client_data.db`) stored within the project's main directory.
+    *   **Database Location:** SQLite database file (`client_data.db`) stored within the backend's project directory.
 
 *   **Phase 2: NAS Migration & Deployment (Target: ~6 Months):**
     *   **Goal:** Migrate the application and database for operation from a personal NAS.
-    *   **Approach:** Copy application folder (including `client_data.db`) to NAS. Ensure Python/Flask can run on NAS. Run Flask backend on NAS. Access UI via browser over local network to NAS IP/port.
-    *   **Consideration:** Design should not hinder file-based deployment. No external dependencies needed for core functionality.
+    *   **Approach:**
+        *   Backend: Copy backend Python/Flask code and `client_data.db` to NAS. Ensure Python/Flask can run. Run Flask backend on NAS.
+        *   Frontend: Build the Vue.js application for production (`npm run build`). Copy the resulting static files (HTML, CSS, JS from the `dist` folder) to be served by the NAS (either via Flask itself configured to serve static files, or a separate web server like Nginx/Apache on the NAS).
+        *   Access UI via browser over local network to NAS IP/port.
+    *   **Consideration:** Design should not hinder deployment. Backend API should be accessible from the frontend build.
 
 
 ## 7. Additional Notes / Preferences
 
 *   Error handling should be user-friendly (clear messages, avoid technical jargon where possible).
-*   Prioritize data integrity and validation on both frontend and backend.
-*   Keep the initial setup and running process simple.
+*   Prioritize data integrity and validation on both frontend (initial checks) and backend (authoritative checks).
+*   Keep the initial setup and running process simple (provide clear instructions if using Vite/npm).
 *   Ensure UI responsiveness across common desktop and tablet screen sizes.
+*   **Incremental Build Recommended:** Even with Vue.js, prompt the AI to build features incrementally (e.g., setup, backend endpoints first, then frontend components one by one). Test each part.
+*   **API Communication:** Ensure clear communication patterns between the Vue.js frontend and the Flask backend API (using `fetch` or libraries like `axios`).
