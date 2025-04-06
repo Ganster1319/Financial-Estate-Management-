@@ -45,14 +45,17 @@ This section lists the primary capabilities the application must provide to the 
 *   **Search & Data Retrieval:**
     *   [ ] Implement the global **Search Bar** in the header for quick client lookup (`FullName`, `Personal_ID`) and potentially policy lookup (`PolicyNumber`).
 
-*   **Reporting & Visualization:**
-    *   [ ] **Business Portfolio Visualization:** Provide a dedicated view or dashboard section to visualize the overall business portfolio. This must include:
-        *   Data aggregation based on all clients/policies.
-        *   Visual representations (e.g., charts - Pie and Bar charts preferred using a library like Chart.js) of the portfolio breakdown.
-        *   Ability to **filter/group** the visualization by `PolicyType` and client `Gender`.
-    *   [ ] **Client Portfolio Visualization:** Within the individual client detail view, provide a visualization of that specific client's insurance portfolio. This must include:
-        *   Visual representations (e.g., charts - Pie chart for policy type breakdown, potentially a table for detailed list using Chart.js) showing the client's policy distribution.
-        *   Ability to **filter/group/sort** the visualization by `PolicyType` and `CoverageType`.
+*   **Reporting & Visualization (Using Chart.js and potentially Leaflet):**
+    *   [ ] **Business Portfolio Visualization (in dedicated 'Reports' view/component):**
+        *   **a. Gender Distribution:** Display client count by `Gender`. (Backend: `GET /api/reports/gender_distribution`, SQL `GROUP BY Gender`. Frontend: Pie chart).
+        *   **b. Insurance Provider Distribution:** Display policy count by `InsuranceProvider`. (Backend: `GET /api/reports/provider_distribution`, SQL `GROUP BY InsuranceProvider`. Frontend: Bar chart, potentially vertical).
+        *   **c. Policy Type Distribution:** Display policy count by `PolicyType`. (Backend: `GET /api/reports/policy_type_distribution`, SQL `GROUP BY PolicyType`. Frontend: donut chart).
+        *   **d. Geographical Distribution (Singapore):** Display client count concentration by Postal Sector on an interactive map of Singapore. (Backend: `GET /api/reports/geo_distribution_sg`, SQL `GROUP BY SUBSTR(Res_Postal_Code, 1, 2)`. Frontend: Choropleth map using Leaflet/Vue-Leaflet and Singapore GeoJSON data. *Note: High complexity, potential deferral.*).
+    *   [ ] **Client Portfolio Visualization (within 'Client Detail' view/component):**
+        *   **a. Policies by Provider:** Display policy count grouped by `InsuranceProvider` for the selected client. (Backend: Data derived from existing `/api/clients/<id>` response. Frontend: Pie chart using client's policy data).
+        *   **b. Policies by Policy Type:** Display policy count grouped by `PolicyType` for the selected client. (Backend: Data derived from existing `/api/clients/<id>` response. Frontend: Pie or Bar chart using client's policy data).
+        *   **c. Benefits by Type (Sum Assured):** Display total `CoverageSumAssured` grouped by `CoverageType` for the selected client. (Backend: `GET /api/reports/client/<id>/benefit_sum_assured`, SQL `GROUP BY CoverageType, SUM(CoverageSumAssured)`. Frontend: Bar chart).
+        *   **d. Benefit End Age vs. Sum Assured:** Display coverage end age vs. sum assured for the selected client. (Backend: `GET /api/reports/client/<id>/benefit_end_age`, Calculate End Age from `CoverageTillAge` or `MaturityExpiryDate - DOB`. Frontend: Multi-line chart using Plotly.js, mapping End Age (x) vs. Sum Assured (y), potentially color-coded by `CoverageType`).
 
 *   **Data Handling & Persistence:**
     *   [ ] **Persistence:** Reliably save all client, policy, and coverage data to the designated database (SQLite file initially).
@@ -71,14 +74,14 @@ This section lists the primary capabilities the application must provide to the 
         *   Secondary: A contrasting accent color, such as a vibrant yellow, orange, or pink
 
 *   **Layout & Navigation Structure:**
-    *   **Primary Navigation:** Implement a **vertical sidebar** on the left side for main application sections (e.g., 'Dashboard/Overview', 'Clients', 'Reports', 'Settings'). This provides a clear hierarchy and is space-efficient for content areas. Contains clickable links/elements for navigation.
+    *   **Primary Navigation:** Implement a **vertical sidebar** on the left side for main application sections (e.g., 'Dashboard/Overview', 'Clients', 'Reports', 'Settings'). This provides a clear hierarchy and is space-efficient for content areas. Contains clickable links/elements for navigation (using Vue Router).
     *   **Header:** Utilize a **sticky/fixed header** at the top of the page. This ensures consistent access to key functions regardless of scroll position.
     *   **Search:** Include a **prominent search bar** within the sticky header for efficient data retrieval as defined in Core Features.
-    *   **Content Area:** The main area to the right of the sidebar and below the header will display the core content (client lists, forms, dashboards). This area will dynamically change based on the selected view/navigation.
+    *   **Content Area:** The main area to the right of the sidebar and below the header will display the core content (client lists, forms, dashboards, reports). This area will dynamically change based on the selected view/navigation managed by Vue Router.
     *   **Breadcrumbs:** Implement breadcrumbs, likely displayed below the header or at the top of the content area, to show the user's current location within the application's hierarchy (e.g., `Home > Clients > [Client Name] > Edit Policy`).
 
 *   **Content Display & Interaction:**
-    *   **Component-Based Approach:** The UI should be built using logical components (e.g., ClientListCard, ClientDetailForm, PolicyCard, CoverageRow) as facilitated by the chosen frontend framework (Vue.js).
+    *   **Component-Based Approach:** The UI should be built using logical Vue.js components (e.g., ClientListCard, ClientDetailForm, PolicyCard, CoverageRow, BasePieChart, BaseBarChart, MapComponent).
     *   **Card-Based Layout:** Use a **card-based layout** within the main content area to segment and display lists of items clearly (e.g., Client list uses summary cards, a Client's Policies view shows policy cards). Consider a grid layout for these cards where appropriate.
     *   **Forms:** Data entry forms should be well-structured within components, using clear labels, logical grouping of fields, and appropriate input controls (text fields, date pickers, dropdowns, etc.). When a form is loaded, automatically set the keyboard focus to the first input field.
         *   **Personal Information Layout:** Within the component displaying the client's main personal details, arrange fields in a **two-column grid** (stacking vertically on mobile) as specified previously (Salutation, Full Name, ID, DOB, Gender, Marital Status in Col1; Smoking, Occupation, Income, Mobile, Email in Col2).
@@ -90,6 +93,9 @@ This section lists the primary capabilities the application must provide to the 
         *   **Card 2: "Policy Coverages Component":** Displays associated coverages in a table-like structure or repeating rows/components.
             *   Layout within each coverage row/component should attempt a single-line format, wrapping on mobile.
             *   **Dynamic Row Management:** Include functional "+" and "-" buttons to add/remove coverage rows/components dynamically, updating the underlying data model.
+    *   **Visualization Display:**
+        *   Business-level charts (Pie, Bar, Map) will be displayed within the dedicated `Reports` view component.
+        *   Client-level charts (Pie, Bar, Scatter) will be displayed within the `Client Detail` view component, likely in a dedicated section or tab within that view.
 
 *   **Key Design Principles:**
     *   **Consistency:** Maintain a consistent design language (colors, typography, component styles, interaction patterns) throughout the application.
@@ -189,11 +195,12 @@ Given the interactive nature of the UI (multiple views, dynamic forms, state man
 
 *   **Frontend (UI):**
     *   **Chosen:** **Vue.js (using Vue 3 Composition API and `<script setup>`)**
-    *   **Reasoning:** While Vanilla JS was initially considered, the complexity of managing different views, handling dynamic forms, and maintaining application state is significant. A framework like **Vue.js** provides essential structure for component-based UI (cards, forms), reactive state management, and conditional rendering (showing/hiding views) which is **more likely to result in a functional and maintainable application via AI generation** compared to manually coding this logic in Vanilla JS. Vue 3 Composition API with `<script setup>` offers a modern and efficient way to organize component logic.
-    *   **Build Tool:** Use **Vite** for project setup and development server (provides fast HMR - Hot Module Replacement).
-    *   **Routing:** Use **Vue Router** for managing navigation between different application views (Client List, Client Detail, Policy Detail, Dashboard, etc.).
-    *   **UI Components (Optional):** Consider using a simple Vue component library like **PrimeVue** or **Element Plus** for pre-built components (inputs, cards, date pickers), OR rely on custom styling with CSS. *Specify preference if any, otherwise AI can choose or use basic HTML elements.*
-    *   **Charting Library:** Include **Chart.js** and a Vue wrapper (like `vue-chartjs`) for visualizations (Section 2).
+    *   **Reasoning:** Provides essential structure for component-based UI, reactive state management, and conditional rendering, making generation of a functional and maintainable application more feasible via AI compared to Vanilla JS.
+    *   **Build Tool:** Use **Vite** for project setup and development server (provides fast HMR).
+    *   **Routing:** Use **Vue Router** for managing navigation between different application views.
+    *   **UI Components (Optional):** Consider using a simple Vue component library like **PrimeVue** or **Element Plus** for pre-built components, OR rely on custom styling with CSS. *Specify preference if any.*
+    *   **Charting Library:** Include **Chart.js** and a Vue wrapper (like **`vue-chartjs`**) for visualizations (Section 2).
+    *   **Mapping Library (Optional):** For geographical visualization, **Leaflet** with a Vue wrapper (like **`vue-leaflet`**) is needed. Requires separate GeoJSON data.
 *   **Backend (Logic/Data Handling):**
     *   **Chosen:** **Python with the Flask framework (Option 1)**.
     *   **Reasoning:** Well-supported on Replit, relatively simple, sufficient for creating the necessary RESTful API endpoints.
@@ -224,5 +231,6 @@ Given the interactive nature of the UI (multiple views, dynamic forms, state man
 *   Prioritize data integrity and validation on both frontend (initial checks) and backend (authoritative checks).
 *   Keep the initial setup and running process simple (provide clear instructions if using Vite/npm).
 *   Ensure UI responsiveness across common desktop and tablet screen sizes.
-*   **Incremental Build Recommended:** Even with Vue.js, prompt the AI to build features incrementally (e.g., setup, backend endpoints first, then frontend components one by one). Test each part.
+*   **Incremental Build Recommended:** Even with Vue.js, prompt the AI to build features incrementally (e.g., setup, backend endpoints first, then frontend components one by one). Test each part thoroughly.
 *   **API Communication:** Ensure clear communication patterns between the Vue.js frontend and the Flask backend API (using `fetch` or libraries like `axios`).
+*   **Geographical Map Complexity:** Implementing the Singapore map visualization (Feature 2.d) requires significant extra effort involving GeoJSON data sourcing/processing and integrating a mapping library (Leaflet); consider this an advanced feature or potential deferral.
