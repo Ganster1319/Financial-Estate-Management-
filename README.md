@@ -27,7 +27,7 @@ This section lists the primary capabilities the application must provide to the 
     *   [ ] **Add:** Create new client records via a dedicated form.
     *   [ ] **List & View:** Display a list of all clients (e.g., using summary cards). This list should be:
         *   **Searchable:** Primarily by client `FullName` and `Personal_ID` via the main header search bar.
-        *   **Sortable:** Allow sorting the client list (e.g., by `FullName`, `DateAdded`).
+        *   **Sortable:** Allow sorting the client list (e.g., by `FullName`, `DateAdded`) through clear UI controls (e.g., clickable column headers or dedicated sort dropdowns).
     *   [ ] **Select & View Details:** Select a client from the list to view their full details (personal information and associated policies) in a dedicated view.
     *   [ ] **Update:** Edit and save changes to existing client information.
     *   [ ] **Delete:** Remove a client record. *(Note: Consider implications - deleting a client might require deleting associated policies or handling orphaned records. Soft delete/archiving might be safer long-term but adds complexity).*
@@ -35,7 +35,7 @@ This section lists the primary capabilities the application must provide to the 
 *   **Policy Management (within a selected Client's context):**
     *   [ ] **Add:** Create new insurance policy records, ensuring each new policy is correctly linked to the currently viewed client.
     *   [ ] **List & View:** Display all policies associated with the selected client (e.g., using policy cards). This list should be:
-        *   **Sortable:** Allow sorting the policies (e.g., by `PolicyType`, `InceptionDate`, `PolicyNumber`).
+        *   **Sortable:** Allow sorting the policies (e.g., by `PolicyType`, `InceptionDate`, `PolicyNumber`) through clear UI controls.
     *   [ ] **Select & View Details:** Select a policy... displaying its details and associated coverages in the two-card layout.
     *   [ ] **Update:** Edit and save changes to existing policy information *and its associated coverages*.
     *   [ ] **Delete:** Remove a policy record *and all its associated coverage records*.
@@ -51,7 +51,7 @@ This section lists the primary capabilities the application must provide to the 
         *   Visual representations (e.g., charts - Pie and Bar charts preferred) of the portfolio breakdown.
         *   Ability to **filter/group** the visualization by `PolicyType` and client `Gender`.
     *   [ ] **Client Portfolio Visualization:** Within the individual client detail view, provide a visualization of that specific client's insurance portfolio. This must include:
-        *   Visual representations (e.g., charts) showing the client's policy distribution.
+        *   Visual representations (e.g., charts - Pie chart for policy type breakdown, potentially a table for detailed list) showing the client's policy distribution.
         *   Ability to **filter/group/sort** the visualization by `PolicyType` and `CoverageType`.
 
 *   **Data Handling & Persistence:**
@@ -79,14 +79,43 @@ This section lists the primary capabilities the application must provide to the 
 
 *   **Content Display & Interaction:**
     *   **Card-Based Layout:** Use a **card-based layout** within the main content area to segment and display lists of items clearly (e.g., Client list uses summary cards, a Client's Policies view shows policy cards). Consider a grid layout for these cards where appropriate.
-    *   **Forms:** Data entry forms should be well-structured within the content area, using clear labels, logical grouping of fields, and appropriate input controls (text fields, date pickers, dropdowns, etc.).
-        *   **Specific Controls:**
-            *   The `Gender` field **must** be presented using **radio buttons** offering exactly two choices: 'Male' and 'Female'. Only one option can be selected.
-            *   Fields like `Salutation`, `SmokingStatus`, `MaritalStatus` should also use radio buttons with their respective predefined options.
+    *   **Forms:** Data entry forms should be well-structured within the content area, using clear labels, logical grouping of fields, and appropriate input controls (text fields, date pickers, dropdowns, etc.). When a form is loaded (e.g., Add Client), automatically set the keyboard focus to the first input field.
+        *   **Personal Information Card Layout:** Within the card displaying the client's main personal details (excluding addresses), arrange the fields specifically in a **two-column grid** layout as follows:
+            *   **Column 1:**
+                1.  Salutation
+                2.  Full Name
+                3.  Personal ID (`Personal_ID`)
+                4.  Date of Birth (`DateOfBirth`)
+                5.  Gender
+                6.  Marital Status
+            *   **Column 2:**
+                1.  Smoking Status
+                2.  Occupation
+                3.  Annual Income
+                4.  Mobile No (`Mobile_Phone`)
+                5.  Personal Email (`Personal_Email`)
+            *   Each field must have a clear, corresponding label positioned appropriately (e.g., above or to the left of the input).
+            *   On smaller screens (tablets/mobile), these two columns **must stack vertically**.
+        *   **Address Cards Layout:** The Residential Address and Mailing Address details should appear in their own distinct sections/cards, typically below the Personal Information card.
+            *   **Layout:** Both the Residential Address card and the Mailing Address card **must** arrange their fields in the following **two-column grid** structure:
+                *   **Column 1:**
+                    1.  Block / House Number (`Res_Block_House_No` / `Mail_Block_House_No`)
+                    2.  Street Name (`Res_Street_Name` / `Mail_Street_Name`)
+                    3.  *(Blank Space / No Field)*
+                *   **Column 2:**
+                    1.  Unit No (`Res_Unit_No` / `Mail_Unit_No`)
+                    2.  Postal Code (`Res_Postal_Code` / `Mail_Postal_Code`)
+                    3.  Country (`Res_Country` / `Mail_Country` - Dropdown)
+            *   Each field must have a clear, corresponding label.
+            *   On smaller screens (tablets/mobile), these two columns **must stack vertically**.
+            *   **Mailing Address Logic:** Remember to implement the "Mailing Address same as Residential" checkbox logic for the Mailing Address card, hiding/showing/disabling/enabling this two-column fieldset as appropriate.
+        *   **Specific Controls:** *(Confirming control types)*
+            *   The `Gender` field **must** be presented using **radio buttons** offering exactly two choices: 'Male' and 'Female'.
+            *   Fields like `Salutation`, `SmokingStatus`, `MaritalStatus` should also use radio buttons.
             *   Use appropriate dropdowns (`<select>`) for `Res_Country`, `Mail_Country`, `PolicyType`, `InsuranceProvider`, `PremiumFrequency`, `PaymentMode`, `BenefitLevel`, `CoverageType`.
             *   Use date picker components for date fields (`DateOfBirth`, `InceptionDate`, etc.) that display in `DD/MM/YYYY` format but handle data as `YYYY-MM-DD`.
-            *   Implement the "Mailing Address same as Residential" checkbox logic as previously described (hiding/showing/copying fields).
-    *   **Transitions & Feedback:** Implement **smooth transitions and subtle animations** where appropriate (e.g., loading states, expanding details). Provide clear visual feedback for user actions (button clicks, saves, errors).
+            *   Validation error messages should be displayed clearly, preferably next to or below the respective invalid input field.
+    *   **Transitions & Feedback:** Implement **smooth transitions and subtle animations** where appropriate (e.g., loading states, expanding details). Provide clear visual feedback for user actions (button clicks, saves, errors). Display clear loading indicators (e.g., spinners, placeholders) when fetching data or saving data.
     *   **Policy View Layout:** When viewing/editing a specific policy, the information should be presented in two distinct cards:
         *   **Card 1: "Policy Details":** Contains the form fields corresponding to the `Policies` table (`PolicyNumber`, `PlanName`, `PolicyType`, `InsuranceProvider`, dates, premium details, etc.). Display the calculated `Annualised_Premium` as a read-only field near the `PremiumAmount` and `PremiumFrequency` fields.
         *   **Card 2: "Policy Coverages":** Contains the details for the individual coverages/riders associated with the policy.
@@ -106,6 +135,8 @@ This section lists the primary capabilities the application must provide to the 
     *   **Mobile Optimization:** The web UI *must* be responsive and adapt gracefully to different screen sizes, including tablets (iPadOS) and potentially smaller mobile viewports. For smaller screens, the vertical sidebar might collapse into a hamburger menu, and horizontal layouts (like coverage rows) may need to stack vertically.
 
 ## 4. Data Structure / Database Schema
+
+*   **Database Integrity:** The backend database connection (using Python/Flask) **must** enable foreign key constraint enforcement in SQLite (e.g., using `PRAGMA foreign_keys = ON;` upon connection).
 
 *   **Client Information Table (`Clients`):**
     *   `ClientID` (INTEGER) - *Primary Key, Auto-incrementing*
