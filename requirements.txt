@@ -1,0 +1,17 @@
+# Flask framework
+Flask>=2.3.0
+Flask-SQLAlchemy>=3.0.0 # ORM (Optional but common)
+Flask-Migrate>=4.0.0    # Database migrations (Optional)
+Flask-Cors>=4.0.0       # For handling Cross-Origin Resource Sharing with frontend
+
+# Database driver (Choose one based on your DB)
+psycopg2-binary>=2.9.0  # For PostgreSQL
+# mysql-connector-python # For MySQL
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Other potential libraries
+# bcrypt # For password hashing
+# PyJWT # For JWT authentication
+# gunicorn # WSGI server for production
